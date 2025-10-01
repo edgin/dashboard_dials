@@ -27,7 +27,9 @@
     "eject": "react-scripts eject",
     "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
     "lint:fix": "eslint 'src/**/*.{js,jsx,ts,tsx}' --fix",
-    "format": "prettier --write 'src/**/*.{js,jsx,ts,tsx,json,css,md}'"
+    "format": "prettier --write 'src/**/*.{js,jsx,ts,tsx,json,css,md}'",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "eslintConfig": {
     "extends": [
@@ -48,6 +50,8 @@
     ]
   },
   "devDependencies": {
+    "gh-pages": "^6.3.0",
     "sass": "^1.93.2"
-  }
+  },
+  "homepage": "https://edgin.github.io/dashboard_dials"
 }
