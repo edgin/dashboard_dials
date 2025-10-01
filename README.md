@@ -14,6 +14,12 @@ Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 The page will reload if you make edits.\
 You will also see any lint errors in the console.
 
+## 🚀 Live Demo (GitHub Pages)
+
+This app is deployed and publicly visible on **GitHub Pages**:
+
+🔗 https://edgin.github.io/dashboard_dials/
+
 ### `npm test`
 
 Launches the test runner in the interactive watch mode.\
