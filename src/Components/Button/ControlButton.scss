@@ -1,0 +1,37 @@
+$btn-bg: #1a1823;
+$btn-hover: #2f4bd1;
+$btn-border: #39354a;
+$btn-size: 32px;
+
+.control-btn {
+  border: 1px solid $btn-border;
+  background: $btn-bg;
+  color: white;
+  font-size: 1.2rem;
+  font-weight: bold;
+  width: $btn-size;
+  height: $btn-size;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+
+  &:hover {
+    background: $btn-hover;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  &.plus,
+  &.minus {
+    background: $btn-border;
+
+    &:hover {
+      background: $btn-border; // stay same on hover
+    }
+  }
+}
