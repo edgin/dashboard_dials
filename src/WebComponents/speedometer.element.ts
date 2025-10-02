@@ -245,7 +245,6 @@ class EngineSpeedElement extends HTMLElement {
     );
   }
 
-  // ------- Build & Layout -------
   #buildGauge() {
     this.gauge = new Graphics();
     this.needle = new Graphics();
@@ -273,7 +272,7 @@ class EngineSpeedElement extends HTMLElement {
     const majorTicks = this._max / 10;
 
     const labelStyle = new TextStyle({
-      fontFamily: "system-ui, ui-sans-serif, Arial",
+      fontFamily: "Inter, system-ui, ui-sans-serif, Arial",
       fontSize: Math.max(10, Math.round(radius * 0.12)),
       fill: 0xe5e7eb,
       fontWeight: "600",

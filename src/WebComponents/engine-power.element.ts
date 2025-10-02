@@ -112,10 +112,17 @@ class EngingePowerElement extends HTMLElement {
     console.log("[engine-power] render", { power: this._power });
     this.root.innerHTML = /*html*/ `
       <style>
+        @font-face {
+          font-family: "Inter";
+          src: url("../assets/fonts/Inter-Regular.woff2") format("woff2");
+          font-weight: 400;
+          font-style: normal;
+          font-display: swap;
+        }
         :host {
           display: block;
           height: 40px;
-          font: 14px/1.2 system-ui;
+          font: 14px/1.2 Inter, system-ui;
         }
       </style>
       <div>Engine Power: <br />${this._power}</div>

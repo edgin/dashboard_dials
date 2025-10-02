@@ -162,6 +162,13 @@ class DistanceTrackerElement extends HTMLElement {
     console.log("[distance-tracker] render", { distance: this._distance });
     this.root.innerHTML = /*html*/ `
       <style>
+        @font-face {
+          font-family: "Inter";
+          src: url("../assets/fonts/Inter-Regular.woff2") format("woff2");
+          font-weight: 400;
+          font-style: normal;
+          font-display: swap;
+        }
         :host {
           box-sizing: border-box;
           height: 100px;
@@ -169,7 +176,7 @@ class DistanceTrackerElement extends HTMLElement {
           padding: 20px;
           border: 1px solid #ffffff;
           background: #1a1823;
-          font: 14px/1.2 system-ui;
+          font: 14px/1.2 Inter;
           display: flex;
           gap: 24px;
           align-items: center;
@@ -177,7 +184,7 @@ class DistanceTrackerElement extends HTMLElement {
           justify-content: space-between;
         }
         .value {
-          font: 32px/1.2 system-ui;
+          font: 32px/1.2 Inter;
           font-weight: 600;
         }
       </style>
