@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import { useStore } from "../Store/DashboardContext";
 import "../WebComponents/engine-power.element";
 import "../WebComponents/distance-tracker.element";
-import "../WebComponents/speedometer.element";
+import "../WebComponents/engine-speed.element";
 import ControlButton from "./Button/ControlButton";
 import "./Button/ControlButton.scss";
 
