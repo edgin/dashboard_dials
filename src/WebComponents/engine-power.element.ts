@@ -5,7 +5,35 @@
     A simple Web Component that displays a numeric "power" value and re-renders whenever
     that value changes. It supports BOTH:
       • Attribute-based updates:   <engine-power power="42"></engine-power>
-      • Property-based updates:    const el = document.querySelector('engine-power')!; el.power = 42;
+      • Property-based updates:    const el = document.querySelector('engine-power')!; el.power = 42; 
+      1) Property (ref) driven:  ref.current.power = 42
+        - How: In JS/TS, set the class property via a ref (or direct element var).
+        - Pros:
+          • Type-safe (v: number), no string→number conversions
+          • Fast: skips attribute mutation & attributeChangedCallback
+          • Great for app-internal/stateful updates (MobX/React).
+        - Cons:
+          • Value not visible in HTML attributes (harder to inspect in DevTools)
+          • Not declarative/SSR-friendly (can’t prefill in static HTML)
+    
+      2) Attribute driven:  <engine-power power="42">
+        - How: Author sets HTML attribute; component reads it via
+                attributeChangedCallback("power", old, new).
+        - Pros:
+          • Declarative & SSR-friendly; initial value shows up in HTML
+          • Easy to test & tweak from DevTools/Storybook
+          • Plays nicely with non-JS templating & CMSs
+        - Cons:
+          • Attribute values are strings → need Number(...) parsing/validation
+          • Slightly more overhead (DOM attr change + callback)
+    
+      Recommended: HYBRID
+      - Accept both .power (property) and power="…" (attribute).
+      - Internally guard against feedback loops: only reflect when the
+        canonical internal value actually changes.
+      - If your app mostly uses refs, prefer property-only during hot paths,
+      and reflect to attribute only when you want inspectability.
+    
 
   How it works (key pieces, top to bottom):
   1) observedAttributes():
@@ -78,6 +106,8 @@
     your app (e.g., via a React ref) to avoid attribute churn.
 */
 
+import { Application, Graphics } from "pixi.js";
+
 class EngingePowerElement extends HTMLElement {
   static get observedAttributes() {
     return ["power"];
@@ -86,10 +116,28 @@ class EngingePowerElement extends HTMLElement {
   private root = this.attachShadow({ mode: "open" });
   private _power = 0;
 
+  private wrapper!: HTMLDivElement;
+  private app!: Application;
+  private graphics!: Graphics;
+
   connectedCallback() {
     console.log("[engine-power] connected");
     this._power = Number(this.getAttribute("power") ?? 0);
-    this.render();
+
+    this.wrapper = document.createElement("div");
+    this.wrapper.style.width = "55px";
+    this.wrapper.style.height = "219px";
+    this.root.appendChild(this.wrapper);
+
+    const style = document.createElement("style");
+    style.textContent = `
+        canvas { outline: none; }
+        :host { outline: none; }
+      `;
+    this.root.appendChild(style);
+
+    this.initPixi();
+    // this.render();
   }
   attributeChangedCallback(name: string, oldV: string | null, newV: string | null) {
     console.log("attr change:", { oldV, newV });
@@ -108,25 +156,35 @@ class EngingePowerElement extends HTMLElement {
     this.setAttribute("power", String(n));
   }
 
+  private async initPixi() {
+    this.app = new Application();
+    await this.app.init({ resizeTo: this.wrapper, backgroundAlpha: 0 });
+    this.wrapper.appendChild(this.app.canvas);
+
+    this.graphics = new Graphics();
+    this.app.stage.addChild(this.graphics);
+
+    this.render();
+  }
+
   private render() {
-    console.log("[engine-power] render", { power: this._power });
-    this.root.innerHTML = /*html*/ `
-      <style>
-        @font-face {
-          font-family: "Inter";
-          src: url("../assets/fonts/Inter-Regular.woff2") format("woff2");
-          font-weight: 400;
-          font-style: normal;
-          font-display: swap;
-        }
-        :host {
-          display: block;
-          height: 40px;
-          font: 14px/1.2 Inter, system-ui;
-        }
-      </style>
-      <div>Engine Power: <br />${this._power}</div>
-    `;
+    if (!this.graphics) return;
+    this.graphics.clear();
+
+    const w = 55;
+    const h = 219;
+
+    const fillH = Math.max(0, Math.min(h - 2, (this._power / 6) * (h - 2)));
+
+    const innerYBottom = h - 1;
+    const innerW = w - 2;
+
+    this.graphics.rect(1, innerYBottom - fillH, innerW, fillH).fill({ color: 0x3b82f6 });
+    this.graphics.rect(0.5, 0.5, w - 1, h - 1).stroke({
+      width: 1,
+      color: 0xffffff,
+      alignment: 0.5,
+    });
   }
 }
 

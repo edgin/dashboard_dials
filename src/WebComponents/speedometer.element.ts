@@ -213,9 +213,10 @@ class EngineSpeedElement extends HTMLElement {
     return this._speed;
   }
   set speed(v: number) {
-    const n = Number(v);
-    if (!Number.isFinite(n) || n === this._speed) return;
-    this.setAttribute("speed", String(n));
+    // No need to check string to number if typeguard is used with REF's
+    // const n = Number(v);
+    if (!Number.isFinite(v) || v === this._speed) return;
+    this.setAttribute("speed", String(v));
   }
 
   #bindToStore(s?: { speed: number }) {
