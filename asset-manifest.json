@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/dashboard_dials/static/css/main.e47ac62c.css",
-    "main.js": "/dashboard_dials/static/js/main.d121cb8b.js",
+    "main.css": "/dashboard_dials/static/css/main.c7e77446.css",
+    "main.js": "/dashboard_dials/static/js/main.be6ac02a.js",
     "static/js/746.9da6a08b.chunk.js": "/dashboard_dials/static/js/746.9da6a08b.chunk.js",
     "static/js/929.82b0e4b4.chunk.js": "/dashboard_dials/static/js/929.82b0e4b4.chunk.js",
     "static/js/992.982e5987.chunk.js": "/dashboard_dials/static/js/992.982e5987.chunk.js",
@@ -9,11 +9,12 @@
     "static/js/453.92a3ccaa.chunk.js": "/dashboard_dials/static/js/453.92a3ccaa.chunk.js",
     "static/js/123.2fea6cac.chunk.js": "/dashboard_dials/static/js/123.2fea6cac.chunk.js",
     "static/js/839.297253b1.chunk.js": "/dashboard_dials/static/js/839.297253b1.chunk.js",
+    "static/media/Inter-Regular.woff2": "/dashboard_dials/static/media/Inter-Regular.85c128721035823e5405.woff2",
     "index.html": "/dashboard_dials/index.html",
     "static/media/arrow-down-sm.svg": "/dashboard_dials/static/media/arrow-down-sm.0750e890c0bc38886b49479dac380ef4.svg",
     "static/media/arrow-up-sm.svg": "/dashboard_dials/static/media/arrow-up-sm.80dbcaf4549067f7ee7293dfa2fc881e.svg",
-    "main.e47ac62c.css.map": "/dashboard_dials/static/css/main.e47ac62c.css.map",
-    "main.d121cb8b.js.map": "/dashboard_dials/static/js/main.d121cb8b.js.map",
+    "main.c7e77446.css.map": "/dashboard_dials/static/css/main.c7e77446.css.map",
+    "main.be6ac02a.js.map": "/dashboard_dials/static/js/main.be6ac02a.js.map",
     "746.9da6a08b.chunk.js.map": "/dashboard_dials/static/js/746.9da6a08b.chunk.js.map",
     "992.982e5987.chunk.js.map": "/dashboard_dials/static/js/992.982e5987.chunk.js.map",
     "25.bf0b8665.chunk.js.map": "/dashboard_dials/static/js/25.bf0b8665.chunk.js.map",
@@ -22,7 +23,7 @@
     "839.297253b1.chunk.js.map": "/dashboard_dials/static/js/839.297253b1.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.e47ac62c.css",
-    "static/js/main.d121cb8b.js"
+    "static/css/main.c7e77446.css",
+    "static/js/main.be6ac02a.js"
   ]
 }
