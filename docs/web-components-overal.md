@@ -1,134 +1,148 @@
-#Architecture for a PixiJS-based engine dashboard built as Web Components.
+# Architecture for a PixiJS-based engine dashboard built as Web Components.
 
 Clear blueprint with decisions, data flow, and performance patterns—no code.
-High-level shape
-<App shell / page>
-└─ <engine-dash> (composition/root WC)
-├─ <engine-gauge id="speed"> (Pixi app #1)
-├─ <engine-gauge id="rpm"> (Pixi app #2)
-├─ <engine-temp> (Pixi app #3)
-├─ <engine-fuel> (Pixi app #4)
-└─ <engine-leds> / <engine-odometer> / <engine-shift>
 
-One instrument = one Web Component = one Pixi Application. Enables isolation, easy reuse, independent lifecycles.
+        High-level shape
+        <App shell / page>
+        └─ <engine-dash> (composition/root WC)
+        ├─ <engine-gauge id="speed"> (Pixi app #1)
+        ├─ <engine-gauge id="rpm"> (Pixi app #2)
+        ├─ <engine-temp> (Pixi app #3)
+        ├─ <engine-fuel> (Pixi app #4)
+        └─ <engine-leds> / <engine-odometer> / <engine-shift>
 
-<engine-dash> only orchestrates layout + wiring (store/bus/theme), not drawing.
+- One instrument = one Web Component = one Pixi Application. Enables isolation, easy reuse, independent lifecycles.
 
-##Responsibilities & contracts
-Each instrument WC
+- <engine-dash> only orchestrates layout + wiring (store/bus/theme), not drawing.
 
-Owns: Pixi Application, resize handling, DPR scaling, render loop (ticker), hit areas (if interactive).
+## Responsibilities & contracts
 
-Inputs: Attributes (static config), Properties (live values), optional store prop (observable).
+### Each instrument WC
 
-Outputs: CustomEvents for user interaction (e.g., needle:drag, value:changed).
+- Owns: Pixi Application, resize handling, DPR scaling, render loop (ticker), hit areas (if interactive).
 
-Lifecycle: connectedCallback → init Pixi; disconnectedCallback → dispose & unmount.
+- Inputs: Attributes (static config), Properties (live values), optional store prop (observable).
 
-Root <engine-dash>
+- Outputs: CustomEvents for user interaction (e.g., needle:drag, value:changed).
 
-Dependency injection: passes a typed store (MobX/Zustand/Rx), or attaches event bus.
+- Lifecycle: connectedCallback → init Pixi; disconnectedCallback → dispose & unmount.
 
-Layout (CSS Grid/Flex inside shadow root).
+### Root <engine-dash>
 
-Theming boundary (CSS custom properties and/or theme JSON passed down).
+- Dependency injection: passes a typed store (MobX/Zustand/Rx), or attaches event bus.
 
-##Data flow & update strategy
-Configuration (rarely changes): via attributes (min, max, start-deg, ticks, label…), reflected for debug/DevTools.
+- Layout (CSS Grid/Flex inside shadow root).
 
-Live values (frequent): via properties (value, warning, etc.) or store binding. Avoid attribute churn for hot paths.
+- Theming boundary (CSS custom properties and/or theme JSON passed down).
 
-Events: instruments emit CustomEvents; root or host app handles behavior/logic.
+## Data flow & update strategy
 
-Rendering pipeline (inside each instrument)
-Layering
+- Configuration (rarely changes): via attributes (min, max, start-deg, ticks, label…), reflected for debug/DevTools.
 
-Static layer (background ring, tick marks, static labels) → cached; re-render only on size/theme/config change.
+- Live values (frequent): via properties (value, warning, etc.) or store binding. Avoid attribute churn for hot paths.
 
-Dynamic layer (needle, progress arc, warning markers) → re-render on value change.
+- Events: instruments emit CustomEvents; root or host app handles behavior/logic.
 
-Text layer (value readout, label) → split: static vs dynamic labels.
+## Rendering pipeline (inside each instrument)
 
-Dirty flags
+### Layering
 
-needsStaticRedraw: set when size/theme/config changed.
+- Static layer (background ring, tick marks, static labels) → cached; re-render only on size/theme/config change.
 
-needsDynamicRedraw: set when value changed.
+- Dynamic layer (needle, progress arc, warning markers) → re-render on value change.
 
-Ticker tick: if neither true → skip drawing work (cheap frame).
+- Text layer (value readout, label) → split: static vs dynamic labels.
 
-Smoothing
+### Dirty flags
 
-Internal displayValue follows external value via exponential smoothing / critically-damped spring.
+- needsStaticRedraw: set when size/theme/config changed.
 
-Mark dynamic dirty only while displayValue !== value.
+- needsDynamicRedraw: set when value changed.
 
-##Sizing, layout, and DPI
-ResizeObserver inside each WC to recompute geometry on container size.
+- Ticker tick: if neither true → skip drawing work (cheap frame).
 
-DevicePixelRatio aware: set Pixi resolution = window.devicePixelRatio (or cap to 2).
+### Smoothing
 
-Geometry derives from container bounds (no fixed pixels). Keep aspect-ratio with CSS if needed.
+- Internal displayValue follows external value via exponential smoothing / critically-damped spring.
 
-Theming
-CSS Custom Properties on the host (work inside shadow DOM): --g-bg, --g-ring, --g-tick, --g-text, --g-accent, --g-needle, etc.
+- Mark dynamic dirty only while displayValue !== value.
 
-Optional theme JSON: pass via property; instrument maps tokens → colors/line widths. Changes trigger static redraw.
+## Sizing, layout, and DPI
 
-State management options (choose one)
-Direct props: parent sets el.value = store.speed. Simple, decoupled.
+- ResizeObserver inside each WC to recompute geometry on container size.
 
-Store injection: el.store = dashboardStore. WC subscribes internally (e.g., MobX reaction coalesced to rAF).
+- DevicePixelRatio aware: set Pixi resolution = window.devicePixelRatio (or cap to 2).
 
-Event bus: instruments listen to value:update events on root; good for non-framework hosts.
+- Geometry derives from container bounds (no fixed pixels). Keep aspect-ratio with CSS if needed.
 
-For your stack: #2 (store injection) for hot signals + #1 for occasional one-offs is a sweet spot.
-Performance tactics (important)
-Batch work per frame: coalesce external updates; write graphics only in rAF/ticker.
+## Theming
 
-Cache static graphics: precompute tick positions; use Graphics once, avoid per-frame .clear() when possible—only when dirty.
+- CSS Custom Properties on the host (work inside shadow DOM): --g-bg, --g-ring, --g-tick, --g-text, --g-accent, --g-needle, etc.
 
-Text cost control: reuse Text objects; only update when content/size changes. For heavy labels → BitmapText or sprite atlas (later).
+- Optional theme JSON: pass via property; instrument maps tokens → colors/line widths. Changes trigger static redraw.
 
-Minimal overdraw: prefer strokes; avoid large translucent fills stacking.
+## State management options (choose one)
 
-Avoid cross-WC coupling: each Pixi app renders to its own canvas—keeps state small and GC straightforward.
+- Direct props: parent sets el.value = store.speed. Simple, decoupled.
 
-##Accessibility & semantics
-Each instrument exposes an ARIA live value in its shadow DOM (e.g., visually hidden <output aria-live="polite"> mirroring value).
+- Store injection: el.store = dashboardStore. WC subscribes internally (e.g., MobX reaction coalesced to rAF).
 
-Keyboard interactions (if any) emit semantic events; host decides behavior.
+- Event bus: instruments listen to value:update events on root; good for non-framework hosts.
 
-Error handling & telemetry
-Instruments guard against invalid inputs (NaN/∞/out of range) and clamp.
+- or your stack: #2 (store injection) for hot signals + #1 for occasional one-offs is a sweet spot.
 
-Optional dev mode: draw a tiny FPS, show dirty flags, warn on layout thrash.
+## Performance tactics (important)
 
-Root can listen for instrument:error events and surface a minimal UI notice.
+- Batch work per frame: coalesce external updates; write graphics only in rAF/ticker.
 
-##Testing & profiling
-Unit: geometry helpers, angle mapping, value → displayValue easing.
+- Cache static graphics: precompute tick positions; use Graphics once, avoid per-frame .clear() when possible—only when dirty.
 
-Visual regression: render to offscreen canvas (or node-canvas) with fixed seed + compare PNGs.
+- Text cost control: reuse Text objects; only update when content/size changes. For heavy labels → BitmapText or sprite atlas (later).
 
-Perf: record long runs with 60→120 Hz tick; track % of frames with any draw; measure max frame time; ensure static idle is ~0 work.
+- Minimal overdraw: prefer strokes; avoid large translucent fills stacking.
 
-##Packaging & composition
-Publish instruments as standalone WCs (no global CSS), versioned; root dash imports them.
+- Avoid cross-WC coupling: each Pixi app renders to its own canvas—keeps state small and GC straightforward.
 
-Keep Pixi peer—avoid bundling multiple versions.
+## Accessibility & semantics
 
-Provide a minimal design tokens doc (CSS vars) and attribute/property tables.
+- Each instrument exposes an ARIA live value in its shadow DOM (e.g., visually hidden <output aria-live="polite"> mirroring value).
 
-##Decision checklist (quick answers)
-One Pixi app per instrument or one global? → Per instrument. Isolation > marginal savings; simpler lifecycles.
+- Keyboard interactions (if any) emit semantic events; host decides behavior.
 
-Attributes vs properties for hot values? → Properties. Reflect only important config to attributes.
+## Error handling & telemetry
 
-Smoothing? → Yes; internal displayValue with exp or spring; mark-dirty until converged.
+- Instruments guard against invalid inputs (NaN/∞/out of range) and clamp.
 
-MobX wiring? → Inject store; subscribe with rAF coalescing; dispose on disconnect.
+- Optional dev mode: draw a tiny FPS, show dirty flags, warn on layout thrash.
 
-Responsiveness? → ResizeObserver + DPR scaling; geometry from bounds; optional CSS aspect-ratio.
+- Root can listen for instrument:error events and surface a minimal UI notice.
 
-Theming? → CSS custom properties first; optional JSON theme for non-CSS hosts.
+## Testing & profiling
+
+- Unit: geometry helpers, angle mapping, value → displayValue easing.
+
+- Visual regression: render to offscreen canvas (or node-canvas) with fixed seed + compare PNGs.
+
+- Perf: record long runs with 60→120 Hz tick; track % of frames with any draw; measure max frame time; ensure static idle is ~0 work.
+
+## Packaging & composition
+
+- Publish instruments as standalone WCs (no global CSS), versioned; root dash imports them.
+
+- Keep Pixi peer—avoid bundling multiple versions.
+
+- Provide a minimal design tokens doc (CSS vars) and attribute/property tables.
+
+## Decision checklist (quick answers)
+
+- One Pixi app per instrument or one global? → Per instrument. Isolation > marginal savings; simpler lifecycles.
+
+- Attributes vs properties for hot values? → Properties. Reflect only important config to attributes.
+
+- Smoothing? → Yes; internal displayValue with exp or spring; mark-dirty until converged.
+
+- MobX wiring? → Inject store; subscribe with rAF coalescing; dispose on disconnect.
+
+- Responsiveness? → ResizeObserver + DPR scaling; geometry from bounds; optional CSS aspect-ratio.
+
+- Theming? → CSS custom properties first; optional JSON theme for non-CSS hosts.
