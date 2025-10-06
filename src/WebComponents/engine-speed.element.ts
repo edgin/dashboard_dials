@@ -1,9 +1,10 @@
 import { Application, Graphics, Text, TextStyle, Container } from "pixi.js";
 import { IReactionDisposer, reaction } from "mobx";
+import { PerfMeter } from "../utility/perfMeter";
 
 class EngineSpeedElement extends HTMLElement {
   static get observedAttributes() {
-    return ["speed"];
+    return ["speed", "perf"];
   }
 
   private root = this.attachShadow({ mode: "open" });
@@ -24,6 +25,9 @@ class EngineSpeedElement extends HTMLElement {
   private targetAngle = 0;
   private minDeg = -220;
   private maxDeg = 40;
+
+  private perf = new PerfMeter(60);
+  private perfEnabled = true;
 
   private mobxDispose?: IReactionDisposer;
   private _store?: { speed: number };
@@ -75,10 +79,23 @@ class EngineSpeedElement extends HTMLElement {
         this.#setTargetFromSpeed(this._speed);
 
         this.app.ticker.add(() => {
+          if (this.perfEnabled) this.perf.onRafStart(performance.now());
           const ease = 0.15;
           this.currentAngle += (this.targetAngle - this.currentAngle) * ease;
-          this.#updateProgressArc(this.currentAngle);
-          this.#updateNeedle(this.currentAngle);
+
+          if (this.perfEnabled) {
+            this.perf.time("frame", () => {
+              // measure dynamic work
+              this.perf.time("dynamicRedraw", () => {
+                this.#updateProgressArc(this.currentAngle);
+                this.#updateNeedle(this.currentAngle);
+              });
+            });
+          } else {
+            // original path without timers
+            this.#updateProgressArc(this.currentAngle);
+            this.#updateNeedle(this.currentAngle);
+          }
         });
       });
   }
@@ -90,6 +107,7 @@ class EngineSpeedElement extends HTMLElement {
   }
 
   attributeChangedCallback(name: string, _old: string | null, val: string | null) {
+    if (name === "perf") this.perfEnabled = val !== "valse";
     if (name === "speed") {
       this._speed = this.#num(val, 0);
       this.#setTargetFromSpeed(this._speed);
@@ -266,6 +284,27 @@ class EngineSpeedElement extends HTMLElement {
   #num(v: string | null, fallback: number) {
     const n = Number(v);
     return Number.isFinite(n) ? n : fallback;
+  }
+
+  public reportPerf() {
+    const r = this.perf.report();
+    console.group("[engine-speed] perf");
+    console.table({
+      Frames: r.frames,
+      "Frame mean (ms)": r.frameTime.mean,
+      "Frame p95 (ms)": r.frameTime.p95,
+      "Dropped %": r.frameTime.droppedPct,
+      "Dyn mean (ms)": r.phases.dynamicRedraw.mean,
+      "Sta mean (ms)": r.phases.staticRedraw.mean,
+      LongTasks: r.longTasks,
+    });
+    console.log(r); // full JSON
+    console.groupEnd();
+    return r;
+  }
+
+  public resetPerf() {
+    this.perf.reset();
   }
 }
 

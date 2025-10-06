@@ -3,7 +3,8 @@ import { useEffect, useRef } from "react";
 import { useStore } from "../Store/DashboardContext";
 import "../WebComponents/engine-power.element";
 import "../WebComponents/distance-tracker.element";
-import "../WebComponents/engine-speed.element";
+// import "../WebComponents/engine-speed.element";
+import SpeedometerPixi from "./Speedometer";
 import ControlButton from "./Button/ControlButton";
 import "./Button/ControlButton.scss";
 
@@ -20,7 +21,6 @@ type EngineSpeedEl = HTMLElement & { store: unknown };
 
 const Dashboard: React.FC = observer(() => {
   const store = useStore();
-  console.log("Dashboard render", { power: store.power });
   /**
    *  Forwarding data as refs properties seems
    *  more efficient for FPS situations
@@ -85,7 +85,8 @@ const Dashboard: React.FC = observer(() => {
 
   return (
     <div className="dashboard">
-      <engine-speed ref={speedRef} />
+      {/* <speedometer ref={speedRef} /> */}
+      <SpeedometerPixi value={120} size={270} />
       <SimulationLoop />
       <distance-tracker ref={distRef} />
       <div className="engine-power-wrapper">

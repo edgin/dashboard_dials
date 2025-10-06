@@ -38,11 +38,8 @@ class DistanceTrackerElement extends HTMLElement {
     const n = Number(v);
     if (!Number.isFinite(n)) return;
     if (this._distance === n) return;
-    this._distance = n;
-    // reflect (helps with devtools and attribute-driven flows)
-    if (this.getAttribute("distance") !== String(n)) {
-      this.setAttribute("distance", String(n));
-    }
+    const s = String(n);
+    if (this.getAttribute("distance") !== s) this.setAttribute("distance", s);
     this.render();
   }
   set speed(v: number) {
