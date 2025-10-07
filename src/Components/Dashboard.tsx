@@ -4,9 +4,10 @@ import { useStore } from "../Store/DashboardContext";
 import "../WebComponents/engine-power.element";
 import "../WebComponents/distance-tracker.element";
 // import "../WebComponents/engine-speed.element";
-import SpeedometerPixi from "./Speedometer";
+// import SpeedometerPixi from "./Speedometer";
 import ControlButton from "./Button/ControlButton";
 import "./Button/ControlButton.scss";
+import Speedometer from "./Speedometer/Speedometer/Speedometer";
 
 type EnginePowerEl = HTMLElement & { power: number };
 type DistanceTrackerEl = HTMLElement & { distance: number; speed: number };
@@ -86,7 +87,7 @@ const Dashboard: React.FC = observer(() => {
   return (
     <div className="dashboard">
       {/* <speedometer ref={speedRef} /> */}
-      <SpeedometerPixi value={120} size={270} />
+      <Speedometer />
       <SimulationLoop />
       <distance-tracker ref={distRef} />
       <div className="engine-power-wrapper">

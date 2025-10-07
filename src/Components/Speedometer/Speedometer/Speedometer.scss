@@ -1,0 +1,22 @@
+.speedometer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.speedometer .dial {
+  width: 270px;
+  height: 270px;
+  background: #111;
+}
+
+.speedometer .readout {
+  font: 700 22px/1.1 system-ui, sans-serif;
+  color: #e8eef7;
+}
+.speedometer .readout .unit {
+  opacity: 0.75;
+  margin-left: 6px;
+  font-weight: 500;
+}
