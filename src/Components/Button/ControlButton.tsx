@@ -2,6 +2,7 @@
 import React from "react";
 import plusIcon from "../../assets/arrow-up-sm.svg";
 import minusIcon from "../../assets/arrow-down-sm.svg";
+import "./ControlButton.scss";
 
 interface ControlButtonProps {
   onClick: () => void;
