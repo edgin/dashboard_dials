@@ -1,0 +1,12 @@
+/* src/styles/EnginePower.scss */
+.engine-power {
+  width: 55px;
+  height: 219px;
+  outline: none;
+
+  /* ensure the Pixi canvas inherits no outline */
+  canvas {
+    outline: none;
+    display: block; /* avoid stray gaps */
+  }
+}

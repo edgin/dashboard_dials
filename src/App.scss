@@ -51,12 +51,12 @@ body {
   }
 }
 
-.distance-tracker,
 .engine-power-control {
   @include flex-center(column);
   margin-top: 20px;
   padding: 20px;
   font-size: 24px;
+  gap: 10px;
 }
 
 .engine-power-wrapper {
