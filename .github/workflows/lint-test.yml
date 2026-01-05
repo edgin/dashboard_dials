@@ -1,0 +1,25 @@
+name: Lint on Push
+
+on:
+  push:
+  
+  jobs:
+    linting:
+      name: Linting
+      runs-on: ubuntu-latest
+ 
+      steps:
+       - name: Output event data
+         run: echo "${{ toJSON(github.event)}}"
+
+       - name: Get code
+         uses: actions/checkout@v4
+  
+       - name: Install npm packages
+         run: npm ci
+ 
+       - name: Output message
+         run: echo "Testing........"
+ 
+       - name: Test code
+         run: npm run lint:ct
